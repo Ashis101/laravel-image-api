@@ -78,4 +78,32 @@ class AuthController extends Controller
     {
         //
     }
+
+    public function isvalidemail(Request $req){
+        $email=$req->email;
+        $data=User::where('email',$email)->first()?? 0;
+        if($data){
+            return response()->json(['resettoken'=>Hash::make($data['email'])]);
+        }else{
+            return response()->json(['message'=>'Not Found']);
+        }
+    }
+
+    public function resetpassword(Request $req){
+        $email=$req->email;
+        $password=$req->password;
+        $token=$req->resettoken;
+        
+        $ischecked=Hash::check($email,$token);
+
+        if(!$ischecked){
+            return response()->json(['messsage'=>'Email Does not matched']);
+        }else{
+            $newpass=Hash::make($password);
+            User::where('email',$email)->update(['password'=>$newpass]);
+            return response()->json(['message'=>'Password Updated']);
+        }
+
+
+    }
 }
